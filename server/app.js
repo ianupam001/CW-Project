@@ -1,9 +1,12 @@
 const express = require("express");
 const app = express();
+
 require("dotenv").config({ path: "./.env" });
 const port = process.env.PORT;
+
 const userRoutes=require('./routes/userRoute')
 const questionsRoutes=require('./routes/questionsRoute')
+
 const dbConnect = require("./db/dbConnect");
 app.use(express.json());
 dbConnect();
@@ -24,7 +27,9 @@ app.use((req, res, next) => {
 app.use('/',userRoutes)
 app.use('/api/user/register',userRoutes);
 app.use('/api/user/login',userRoutes);
-app.use('/api/user/logout',userRoutes)
+app.use('/api/user/details',userRoutes);
+app.use('/api/user/get-users',userRoutes)
+app.use('/api/user/logout',userRoutes);
 
 
 app.use('/',questionsRoutes)

@@ -21,7 +21,7 @@ const Login = () => {
       const response = await login(loginId, password);
       if (response.status === 200) {
         setLoading(false);
-        navigate("/dashboard");
+        navigate("/form");
       } else {
         console.error("Login failed:", response.statusText);
       }

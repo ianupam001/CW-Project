@@ -30,6 +30,7 @@ const AdminPanel = () => {
     const fetchUsers = async () => {
       try {
         const response = await getUsers();
+        console.log(response)
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users", error);
@@ -37,8 +38,6 @@ const AdminPanel = () => {
     };
     // fetch users initially
     fetchUsers();
-    //fetch user after 2second
-    const intervalId = setInterval(fetchUsers, 2000);
 
     // Clean up interval
     return () => clearInterval(intervalId);
@@ -110,27 +109,7 @@ const AdminPanel = () => {
 
                 {/* Right column container */}
                 <div className="lg:w-6/12">
-                  <div className="flex justify-center items-center rounded-b-lg bg-white lg:rounded-r-lg lg:rounded-bl-none  dark:bg-neutral-800">
-                    <div className="px-4 py-6 text-neutral-800 dark:text-neutral-200 md:mx-6 md:p-12">
-                      {/* Right content */}
-                      <div>
-                        <h4 className="mb-12 mt-1 pb-1 text-xl font-semibold">
-                          Total User list
-                        </h4>
-                        {users.length === 0 ? (
-                          <Spinner color="blue" size="xl" />
-                        ) : (
-                          users.map((user,index) => (
-                            <ul key={index}>
-                              <li>
-                                {user.loginId}
-                              </li>
-                            </ul>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                 
                 </div>
               </div>
             </div>

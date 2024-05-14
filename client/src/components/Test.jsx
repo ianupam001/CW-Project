@@ -2,15 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@material-tailwind/react";
 import axios from "axios";
+import useAuth from "../hooks/useAuth";
 
 const baseUrl =
   import.meta.env.VITE_BASE_URL_DEV || import.meta.env.VITE_BASE_URL_PROD;
 
 const Test = () => {
+  const { details } = useAuth();
   const [questionsAndOptions, setQuestionsAndOptions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [optionCounts, setOptionCounts] = useState(Array(5).fill(0));
+  const [traitCounts, setTraitCounts] = useState({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 });
   const [loading, setLoading] = useState(true); // For loader
   const navigateTo = useNavigate();
 
@@ -31,7 +34,8 @@ const Test = () => {
     fetchQuestions();
   }, []);
 
-  const handleOptionChange = (questionId, optionIndex) => {
+  const handleOptionChange = (questionId, optionIndex, traitCode) => {
+    const optionMarks = optionIndex + 1; // Calculate the marks of the selected option
     const newOptionCounts = [...optionCounts];
     newOptionCounts[optionIndex]++;
     setOptionCounts(newOptionCounts);
@@ -39,6 +43,12 @@ const Test = () => {
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
       [questionId]: optionIndex,
+    }));
+
+    // Update trait counts based on the marks of the selected option
+    setTraitCounts((prevCounts) => ({
+      ...prevCounts,
+      [traitCode]: prevCounts[traitCode] + optionMarks,
     }));
   };
 
@@ -52,17 +62,21 @@ const Test = () => {
 
   const handleSubmit = async () => {
     setLoading(true); // Show loader
-    // Simulate API call or any asynchronous operation
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(trait_percentage)
     setLoading(false); // Hide loader
     navigateTo("/result");
   };
-
+  
   const currentQuestion = questionsAndOptions[currentQuestionIndex];
+
+  const trait_percentage = {};
+  for (const traitCode in traitCounts) {
+    const percentage = (traitCounts[traitCode] / 16) * 20; // Apply the provided formula
+    trait_percentage[traitCode] = percentage;
+  }
 
   // Check if an option has been selected for the current question
   const isOptionSelected = answers.hasOwnProperty(currentQuestionIndex);
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -72,8 +86,6 @@ const Test = () => {
   }
 
   return (
- 
-
     <div
       className="h-screen m-2 flex justify-center items-center rounded-b-lg rounded-l-lg rounded-r-lg "
       style={{
@@ -93,7 +105,7 @@ const Test = () => {
               required
               id={`option_${optionIndex}`}
               onChange={() =>
-                handleOptionChange(currentQuestionIndex, optionIndex)
+                handleOptionChange(currentQuestionIndex, optionIndex, currentQuestion.trait_code)
               }
               checked={answers[currentQuestionIndex] === optionIndex}
               className="mr-2"

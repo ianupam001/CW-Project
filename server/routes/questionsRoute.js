@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Questions = require("../db/questionsModel");
+const Questions = require("../models/questionModel");
 
 router.get("/api/questions/get-questions", async (req, res) => {
   try {

@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const auth = require("../auth");
-const blacklist = require("../blacklist");
-const User = require("../db/userModel");
+const auth = require("../middleware/auth");
+const blacklist = require("../middleware/blacklist");
+const User = require("../models/userModel");
+const CreateUser = require("../models/createUserModel")
 
 // endpoint to register user
 router.post("/api/user/register", (req, res) => {
@@ -41,17 +42,6 @@ router.post("/api/user/register", (req, res) => {
     });
 });
 
-// endppoint to get registered users
-router.get("/api/user/get-users", async (req, res) => {
-  try {
-    const users = await User.find(); // Find all users
-    //const users = await User.find({}, { loginId: 1, password: 1, _id: 0 });
-    res.status(200).json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching users", error });
-  }
-});
 
 // endpoint for verifying users
 router.post("/api/user/login", (req, res) => {
@@ -98,7 +88,46 @@ router.post("/api/user/login", (req, res) => {
       });
     });
 });
+// create user details
+router.post("/api/user/details", async (req, res) => {
+  try {
+    const { name, fatherName, phoneNumber, email, className, section, school} = req.body;
 
+    // Create a new user instance
+    const newUser = new CreateUser({
+      name,
+      fatherName,
+      phoneNumber,
+      email,
+      className,
+      section,
+      school,
+    });
+
+    // Save the user to the database
+    const savedUser = await newUser.save();
+
+    res.status(201).send({
+      message:"Details saved successfully",
+      savedUser
+    })
+  } catch (error) {
+    console.error("Error saving user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+// endppoint to get registered users
+router.get("/api/user/get-users", async (req, res) => {
+  try {
+    const users = await CreateUser.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching users", error });
+  }
+});
 // Define your logout endpoint
 router.post("/api/user/logout", auth, (req, res) => {
   try {
